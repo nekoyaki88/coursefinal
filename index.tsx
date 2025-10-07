@@ -42,13 +42,12 @@ const speak = (text) => {
   }
 };
 
-const SessionPlayer = ({ session, onBack }) => {
+const SessionPlayer = ({ session, onBack, bpm, onBpmChange }) => {
   const [phase, setPhase] = useState('warmup');
   const [rep, setRep] = useState(0);
   const [timeLeft, setTimeLeft] = useState(session.warmup);
   const [totalTime, setTotalTime] = useState(session.warmup);
   const [isActive, setIsActive] = useState(false);
-  const [bpm, setBpm] = useState(170);
 
   const timerRef = useRef(null);
   const metronomeRef = useRef(null);
@@ -201,7 +200,7 @@ const SessionPlayer = ({ session, onBack }) => {
         </div>
       </div>
       
-      <div className="metronome-container" disabled={phase !== 'run'}>
+      <div className="metronome-container" disabled={isActive && phase !== 'run'}>
         <label htmlFor="bpm-slider">MÉTRONOME: {bpm} PPM</label>
         <input
           type="range"
@@ -211,8 +210,8 @@ const SessionPlayer = ({ session, onBack }) => {
           max="180"
           step="1"
           value={bpm}
-          onChange={(e) => setBpm(Number(e.target.value))}
-          disabled={phase !== 'run'}
+          onChange={(e) => onBpmChange(Number(e.target.value))}
+          disabled={isActive && phase !== 'run'}
         />
       </div>
 
@@ -244,6 +243,7 @@ const SessionList = ({ onSelect }) => (
 
 const App = () => {
   const [selectedSession, setSelectedSession] = useState(null);
+  const [bpm, setBpm] = useState(170);
 
   const handleSelectSession = (index) => {
     setSelectedSession(index);
@@ -259,7 +259,12 @@ const App = () => {
       {selectedSession === null ? (
         <SessionList onSelect={handleSelectSession} />
       ) : (
-        <SessionPlayer session={SESSIONS[selectedSession]} onBack={handleBack} />
+        <SessionPlayer
+          session={SESSIONS[selectedSession]}
+          onBack={handleBack}
+          bpm={bpm}
+          onBpmChange={setBpm}
+        />
       )}
     </div>
   );
